@@ -2,17 +2,16 @@ import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
-const parrentUrl = "akbarfikri.my.id";
+const parrentUrl = process.env.OWN_BASE_URL;
+const siteNotFound = parrentUrl + "/unavailabel";
 
 export async function GET(request) {
   const searchQuery = request.nextUrl.searchParams;
   const alias = searchQuery.get("alias");
+  let base = "";
 
   if (!alias) {
-    return NextResponse.json(
-      { massage: "Error Alias must be add" },
-      { status: 404 }
-    );
+    return NextResponse.redirect(siteNotFound);
   }
   const result = await prisma.shortUrl.findUnique({
     where: {
@@ -24,13 +23,18 @@ export async function GET(request) {
     },
   });
   if (!result) {
-    return NextResponse.json(
-      { massage: "Error Alias Not Found" },
-      { status: 404 }
-    );
+    return NextResponse.redirect(siteNotFound);
+  }
+  if (
+    !result.base_url.includes("http://") ||
+    !result.base_url.includes("https://")
+  ) {
+    base = "http://" + result.base_url;
+  } else {
+    base = result.base_url;
   }
 
-  return NextResponse.json({ result }, { status: 200 });
+  return NextResponse.redirect(base);
 }
 
 export async function POST(request) {
