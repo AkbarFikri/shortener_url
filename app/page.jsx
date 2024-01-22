@@ -1,27 +1,33 @@
 "use client";
 import { Link2Icon } from "@radix-ui/react-icons";
 import isUrl from "is-url";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Home() {
+  const router = useRouter();
   const [base, setBase] = useState("");
   const [alias, setAlias] = useState("");
   const [errorBase, setErrorBase] = useState("");
   const [errorAlias, setErrorAlias] = useState("");
-  const [shortUrl, setShortUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit() {
+    setIsLoading(true);
     if (!base) {
       setErrorBase("Error, Base URL is Needed!");
+      setIsLoading(false);
       return;
     }
     if (!alias) {
       setErrorAlias("Error, Alias is Needed!");
+      setIsLoading(false);
       return;
     }
     const validateBaseUrl = isUrl(base);
     if (!validateBaseUrl) {
       setErrorBase("Error, The base is not a URL!");
+      setIsLoading(false);
       return;
     }
     const data = {};
@@ -39,7 +45,8 @@ export default function Home() {
       setErrorAlias("Error Alias Has been used!");
       return;
     }
-    setShortUrl(res.result.short_url);
+    router.push(`/success?baseUrl=${base}&alias=${res.result.short_url}`);
+    setIsLoading(false);
   }
 
   return (
@@ -85,13 +92,26 @@ export default function Home() {
             </span>
           )}
           <div className="">
-            <button
-              className="px-6 py-2 text-white rounded-full bg-blue-950"
-              onClick={handleSubmit}
-            >
-              {" "}
-              Shorten{" "}
-            </button>
+            {isLoading ? (
+              <button
+                className="flex justify-center items-center gap-3 px-6 py-2 text-white rounded-full bg-blue-950 hover:bg-sky-900 duration-300 active:bg-blue-800"
+                onClick={handleSubmit}
+              >
+                {" "}
+                <svg
+                  class="inline-block h-4 w-4 animate-spin rounded-full border-[3px] border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                  viewBox="0 0 24 24"
+                ></svg>
+              </button>
+            ) : (
+              <button
+                className="px-6 py-2 text-white rounded-full bg-blue-950 hover:bg-sky-900 duration-300 active:bg-blue-800"
+                onClick={handleSubmit}
+              >
+                {" "}
+                Shorten{" "}
+              </button>
+            )}
           </div>
         </div>
       </div>
