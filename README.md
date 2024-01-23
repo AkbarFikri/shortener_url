@@ -4,6 +4,10 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
+- [![Next][Next.js][Next-url]]
+
+[Next-url]: https://nextjs.org/
+
 First, run the development server:
 
 ```bash
